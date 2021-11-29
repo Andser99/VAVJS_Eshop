@@ -1,0 +1,33 @@
+version: '3.4'
+
+services:
+  eshop:
+    image: eshop
+    build:
+      context: frontend
+      dockerfile: ./Dockerfile
+    environment:
+      NODE_ENV: production
+    ports:
+      - 3000:3000
+
+
+  backend:
+    container_name: "backend"
+    build: ./backend/
+    ports:
+      - "3001:3001"
+    depends_on:
+      - "database"
+
+  database:
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    # image: "postgres:latest"
+    # container_name: "postgres"
+    ports:
+      - "5987:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Heslo123456
