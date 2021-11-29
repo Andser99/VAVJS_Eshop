@@ -4,20 +4,48 @@ const bodyParser = require('body-parser')
 const app = express();
 const port = 3001;
 const { Client } = require('pg');
-const client = new Client({
-    host: 'localhost',
-    port: 5987,
+
+let client = new Client({
+    host: 'database',
+    port: 5432,
     user: 'postgres',
     password: 'Heslo123456'
 });
+let connected = false;
+let retryInterval = setInterval(() => {
+    client.connect(err => {
+        if (err) {
+            console.log("Db connection error.");
+            console.log(err);
+            console.log("DB not found on port 5432, trying 5987");
+            client = new Client({
+                host: 'localhost',
+                port: 5987,
+                user: 'postgres',
+                password: 'Heslo123456'
+            });
+            client.connect(err => {
+                if (err) console.log("Db not found on 5987 either.");
+                else {
+                    console.log("Connection success.");
+                    connected = true;
+                    clearInterval(retryInterval);
+                }
+            });
+        }
+        else {
+            connected = true;
+            clearInterval(retryInterval);
+            console.log("Successfully connected to Db.");
+        }
+    })
+}, 10000);
 
-client.connect(err => {
-    if (err) {
-        console.log("Db connection error.");
-        console.log(err);
-    }
-    else console.log("Successfully connected to Db.");
-})
+
+
+
+
+
 
 
 app.use(cors());
@@ -32,7 +60,11 @@ app.get('/products', (req, res) => {
     let q = 'SELECT * FROM products ORDER BY id ASC';
     console.log("Querying /products");
     client.query(q, (error, results) => {
-        if (error) throw error;
+        if (error) {
+            console.log("/products query done.");
+            throw error;
+        }
+        console.log("/products query done.");
         res.status(200).json(results.rows);
     });
 });
@@ -55,7 +87,9 @@ app.get('/sample_products', (req, res) => {
 app.post('/order', (req, res) => {
     console.log("Received order request");
     console.log(req.body);
-    res.status(200).json(req.body);
+    const customerOrder = req.body;
+
+    res.status(200).send("ok");
 
 });
 
