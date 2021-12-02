@@ -1,3 +1,5 @@
+import { Navigate } from "react-router-dom";
+
 class CartTracker {
     constructor() {
         this.ProductList = [];
@@ -75,6 +77,12 @@ class CartTracker {
         });
         console.log("Order post response:");
         console.log(response);
+        if (response.status === 400) {
+            alert("Email already in use (or other error)");
+        }
+        else {
+            return  <Navigate to="/completed" />
+        }
     }
 }
 

@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Cart from "./pages/Cart";
 import Admin from "./pages/Admin";
+import CompletedOrder from "./pages/CompletedOrder";
 import Navbar from "./components/Navbar"
 
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
           <Route exact path='/' element={<Home />} />
           <Route path='/admin' element={<Admin />} />
           <Route path='/cart' element={<Cart />} />
+          <Route path='/completed' element={<CompletedOrder />} />
           </Routes>
       </Router>
     </div>

@@ -12,6 +12,7 @@ let client = new Client({
     password: 'Heslo123456'
 });
 let connected = false;
+// Retry db connection every 10 sec after it fails
 let retryInterval = setInterval(() => {
     client.connect(err => {
         if (err) {
@@ -61,7 +62,7 @@ app.get('/products', (req, res) => {
     console.log("Querying /products");
     client.query(q, (error, results) => {
         if (error) {
-            console.log("/products query done.");
+            console.log("/products query done with error.");
             throw error;
         }
         console.log("/products query done.");
@@ -87,16 +88,85 @@ app.get('/sample_products', (req, res) => {
 app.post('/order', (req, res) => {
     console.log("Received order request");
     console.log(req.body);
-    const customerOrder = req.body;
+    const customer = req.body.customerInfo;
+    const order = req.body.orderItems;
+    //Insert customer
+    let q = `INSERT INTO customers (name, email, street, street_number, postal_code, city)
+    VALUES ('${customer.meno}','${customer.email}','${customer.ulica}','${customer.cislo}','${customer.psc}','${customer.mesto}')`;
+    console.log(q);
+    client.query(q, (error, result) => {
+        if (error) {
+            console.log(error);
+            res.status(400).json({message: "Email already in use or some fields left empty"});
+            return;
+        }
+        // Get ID of customer with this email
+        client.query(`SELECT id from customers WHERE email='${customer.email}'`, (err, idResult) => {
+            if (err) { 
+                console.log(err);
+                res.status(400).json({message: "Email already in use or some fields left empty"}); 
+                return;
+            }
 
-    res.status(200).send("ok");
+            if (idResult.rows.length == 0) {
+                console.log("Email not found");
+                res.status(400).json({message: "Email not found"});
+                return;
+            }
+
+            // Populate values for INSERT
+            let productsValues = [];
+            for (product of order) {
+                productsValues.push(`(${idResult.rows[0].id}, ${product.id}, ${product.count}, 0)`);
+            }
+            client.query(`INSERT INTO orders (customer_id, product_id, count, state) VALUES ${productsValues.join(', ')}`, (er, re) => {
+                console.log("3rd query");
+                if (er) { 
+                    console.log(er);
+                    res.status(400).json({message: "Email already in use or some fields left empty"});
+                    return;
+                }
+                
+                res.status(201).json({message: "order created"});
+            });
+
+        });
+    });
 
 });
 
+app.get('/adclick', (req, res) => {
+    client.query(`UPDATE advertisements SET clicks = clicks + 1 WHERE id = 0;`, (err, results) => {
+        res.status(200).json({message: "click done"});
+    });
+});
+
+app.post('/adchange', (req, res) => {
+    const newUrl = req.body.url;
+    const newImage = req.body.image;
+    client.query(`UPDATE advertisements SET url='${newUrl}', image='${newImage}' WHERE id = 0;`, (err, results) => {
+        if (err) {
+            console.log("Couldn't update ad.");
+            console.log(err);
+            res.status(400).json({message: "cannot update ad"});
+            return;
+        }
+        res.status(200).json({message: "updated ad"});
+    })
+})
+
+app.get('/ad', (req, res) => {
+    client.query(`SELECT url, image, clicks from advertisements ORDER BY id ASC LIMIT 1`, (err, results) => {
+        res.status(200).json(results.rows[0]);
+    });
+});
+
 app.get('/test_query', (request, response) => {
-    let q = 'SELECT * FROM data ORDER BY id ASC';
+    let q = 'SELECT * FROM customers ORDER BY id ASC';
     client.query(q, (error, results) => {
-        if (error) { throw error }
+        if (error) {
+            console.log(error);
+        }
         response.status(200).json(results.rows)
     });
 });
