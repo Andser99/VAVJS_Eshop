@@ -1,7 +1,6 @@
-import { Navigate } from "react-router-dom";
-
 class CartTracker {
     constructor() {
+        this.navigate = null;
         this.ProductList = [];
         this.ExpiryDate = new Date();
         this.ExpiryDate.setHours(this.ExpiryDate.getHours()+1);
@@ -81,7 +80,8 @@ class CartTracker {
             alert("Email already in use (or other error)");
         }
         else {
-            return  <Navigate to="/completed" />
+            console.log("Navigating to ad.");
+            this.navigate('/completed');
         }
     }
 }

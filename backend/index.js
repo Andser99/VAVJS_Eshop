@@ -136,7 +136,14 @@ app.post('/order', (req, res) => {
 });
 
 app.get('/adclick', (req, res) => {
-    client.query(`UPDATE advertisements SET clicks = clicks + 1 WHERE id = 0;`, (err, results) => {
+    console.log("Ad click triggered.")
+    client.query(`UPDATE advertisements SET clicks = clicks + 1`, (err, results) => {
+        if (err) {
+            console.log("Click update counter failed.");
+            res.status(400).json({message: "click failed"});
+            return;
+        }
+        console.log("ad counter updated.");
         res.status(200).json({message: "click done"});
     });
 });
@@ -144,7 +151,7 @@ app.get('/adclick', (req, res) => {
 app.post('/adchange', (req, res) => {
     const newUrl = req.body.url;
     const newImage = req.body.image;
-    client.query(`UPDATE advertisements SET url='${newUrl}', image='${newImage}' WHERE id = 0;`, (err, results) => {
+    client.query(`UPDATE advertisements SET url='${newUrl}', image='${newImage}'`, (err, results) => {
         if (err) {
             console.log("Couldn't update ad.");
             console.log(err);
@@ -157,6 +164,10 @@ app.post('/adchange', (req, res) => {
 
 app.get('/ad', (req, res) => {
     client.query(`SELECT url, image, clicks from advertisements ORDER BY id ASC LIMIT 1`, (err, results) => {
+        if (err) {
+            res.status(404).json({message: "cannot find ads"});
+            return;
+        }
         res.status(200).json(results.rows[0]);
     });
 });
@@ -170,6 +181,6 @@ app.get('/test_query', (request, response) => {
         response.status(200).json(results.rows)
     });
 });
-app.listen(port, () => {
+module.exports = app.listen(port, () => {
     console.log(`running on port ${port}.`);
 });
