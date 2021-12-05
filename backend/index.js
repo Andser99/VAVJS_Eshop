@@ -10,45 +10,43 @@ let client = new Client({
     port: 5432,
     user: 'postgres',
     password: 'Heslo123456',
-    connectionTimeoutMillis: 3000
+    connectionTimeoutMillis: 8000
 });
 let connected = false;
 // Retry db connection every 10 sec after it fails
 // client.connect();
-client.connect(err => {
-    if (err) {
-        console.log("Db connection error.");
-        console.log(err);
-        console.log("DB not found on database:5432, trying localhost:5432");
-        client = new Client({
-            host: 'localhost',
-            port: 5432,
-            user: 'postgres',
-            password: 'Heslo123456',
-            connectionTimeoutMillis: 3000
-        });
-        client.connect(err => {
-            if (err) {
-                console.log("Db not found on localhost:5432 either.");
-                client = new Client({
-                    host: 'database',
-                    port: 5432,
-                    user: 'postgres',
-                    password: 'Heslo123456',
-                    connectionTimeoutMillis: 3000
-                });
-            }
-            else {
-                console.log("Connection success. localhost:5432");
-                connected = true;
-            }
-        });
-    }
-    else {
-        connected = true;
-        console.log("Successfully connected to Db. database:5432");
-    }
-});
+var connectInterval = setInterval(() => {
+    client.connect(err => {
+        if (err) {
+            console.log("Db connection error.");
+            console.log(err);
+            console.log("DB not found on database:5432, trying localhost:5432");
+            client = new Client({
+                host: 'localhost',
+                port: 5432,
+                user: 'postgres',
+                password: 'Heslo123456',
+                connectionTimeoutMillis: 8000
+            });
+            client.connect(err => {
+                if (err) {
+                    console.log("Db not found on localhost:5432 either.");
+                }
+                else {
+                    console.log("Connection success. localhost:5432");
+                    connected = true;
+                    clearInterval(connectInterval);
+                }
+            });
+        }
+        else {
+            connected = true;
+            clearInterval(connectInterval);
+            console.log("Successfully connected to Db. database:5432");
+        }
+    });
+}, 18000);
+
 
 
 

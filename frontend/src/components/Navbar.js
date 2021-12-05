@@ -17,9 +17,6 @@ class App extends Component {
                         <td style={{paddingLeft: "50px"}}>
                             <Link to="/cart">View Cart</Link>
                         </td>
-                        <td style={{paddingLeft: "50px"}}>
-                            <Link to="/admin">Admin Interface</Link>
-                        </td>
                     </tr>
                 </tbody>
             </table>
