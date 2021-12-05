@@ -1,6 +1,5 @@
 class CartTracker {
     constructor() {
-        this.navigate = null;
         this.ProductList = [];
         this.ExpiryDate = new Date();
         this.ExpiryDate.setHours(this.ExpiryDate.getHours()+1);
@@ -81,7 +80,7 @@ class CartTracker {
         }
         else {
             console.log("Navigating to ad.");
-            this.navigate('/completed');
+            window.location = '/completed';
         }
     }
 }

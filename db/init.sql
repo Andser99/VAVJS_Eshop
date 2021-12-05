@@ -46,12 +46,12 @@ CREATE TABLE public.orders
     CONSTRAINT customer_foreign FOREIGN KEY (customer_id)
         REFERENCES public.customers (id) MATCH SIMPLE
         ON UPDATE NO ACTION
-        ON DELETE NO ACTION
+        ON DELETE CASCADE
         NOT VALID,
     CONSTRAINT product_foreign FOREIGN KEY (product_id)
         REFERENCES public.products (id) MATCH SIMPLE
         ON UPDATE NO ACTION
-        ON DELETE NO ACTION
+        ON DELETE CASCADE
         NOT VALID
 );
 
@@ -65,4 +65,4 @@ VALUES	('Klince 20cm', 5000, 5, 'https://external-content.duckduckgo.com/iu/?u=h
 
         
 INSERT INTO advertisements(url, image, clicks)
-VALUES	('https://mykysuce.sme.sk/g/100513/vyliaty-potok-v-zakopci-napachal-velke-skody?gref=https%253A%252F%252Fmykysuce.sme.sk%252Fc%252F20885747%252Fvyliaty-potok-v-zakopci-napachal-velke-skody.html&photo=p3492344', 'https://m.smedata.sk/api-media/media/image/sme/8/34/3492348/3492348_1000x.jpeg?rev=2', 0);
+VALUES	('https://www.tvnoviny.sk/domace/2045884_tradicia-ktora-mnohym-poriadne-zdvihla-tlak-a-narazila-na-odpor', 'https://static.markiza.sk/a501/image/file/21/1851/TrEQ.v_lendaku_zmizli_branky_.jpg', 0);
